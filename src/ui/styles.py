@@ -14,7 +14,6 @@ STYLESHEET = f"""
     }}
     QLabel {{
         color: {TEXT_COLOR};
-        font-family: 'Segoe UI', Arial;
     }}
     QComboBox {{
         border: 1px solid #bdc3c7;

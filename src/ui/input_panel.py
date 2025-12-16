@@ -48,7 +48,7 @@ class InputPanel(QFrame):
             
             # ComboBox
             combo = QComboBox()
-            combo.setStyleSheet("color: #2c3e50")
+            combo.setStyleSheet("color: #2c3e50; font-family: 'Segoe UI';")
             for k, v in data.items():
                 combo.addItem(f"{v}", k) # Hiển thị Value, lưu Key
             
