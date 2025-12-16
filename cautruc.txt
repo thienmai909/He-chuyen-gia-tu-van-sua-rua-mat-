@@ -1,0 +1,30 @@
+expert_skincare/
+│
+├── assets/                 # Hình ảnh các loại sữa rửa mặt, icon da dầu/khô...
+│
+├── data/                   # Nơi chứa DỮ LIỆU CỐT LÕI
+│   ├── skincare.db         # Database SQLite (Chứa danh sách sản phẩm)
+│   └── rules.json          # (Tùy chọn) Chứa luật suy luận (VD: Da dầu -> Cần BHA)
+│
+├── src/
+│   ├── __init__.py
+│   │
+│   ├── ui/                 # GIAO DIỆN (VIEW)
+│   │   ├── main_window.py  # Khung chính
+│   │   ├── wizard/         # Màn hình hỏi đáp từng bước (Quan trọng)
+│   │   │   ├── step_skin_type.py  # Hỏi về loại da
+│   │   │   ├── step_problems.py   # Hỏi về vấn đề (mụn, thâm...)
+│   │   │   └── step_budget.py     # Hỏi về giá tiền
+│   │   │
+│   │   └── results/        # Màn hình hiển thị kết quả
+│   │       ├── recommendation_view.py  # Hiện danh sách gợi ý
+│   │       └── product_card.py         # Widget hiển thị 1 sản phẩm
+│   │
+│   ├── logic/              # LOGIC (CONTROLLER + MODEL)
+│   │   ├── inference_engine.py  # ĐỘNG CƠ SUY LUẬN (Trái tim của hệ thống)
+│   │   └── db_manager.py        # Quản lý truy xuất SQLite
+│   │
+│   └── models/             # Định nghĩa cấu trúc dữ liệu (Data Classes)
+│       └── product.py      # Class Product (tên, thành phần, công dụng...)
+│
+└── main.py
