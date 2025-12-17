@@ -4,7 +4,6 @@ from PySide6.QtGui import QIcon
 from src.ui.styles import STYLESHEET
 from src.ui.input_panel import InputPanel
 from src.ui.result_panel import ResultPanel
-from src.ui.wizard_panel import WizardPanel
 from src.logic.inference_engine import ExpertSystem
 
 class MainWindow(QMainWindow):
@@ -32,8 +31,8 @@ class MainWindow(QMainWindow):
         main_layout.setSpacing(20) # Khoảng cách giữa 2 cột
 
         # 1. Tạo cột trái (Input)
-        # self.input_panel = InputPanel()
-        self.input_panel = WizardPanel()
+        self.input_panel = InputPanel()
+        # self.input_panel = WizardPanel()
         # KẾT NỐI TÍN HIỆU: Khi input_panel bắn tín hiệu 'search_signal', gọi hàm handle_search
         self.input_panel.search_signal.connect(self.handle_search)
         

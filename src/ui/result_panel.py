@@ -36,6 +36,12 @@ class ResultPanel(QFrame):
         self.lbl_name.setStyleSheet("font-size: 20px; font-weight: bold; margin-top: 15px; border: none;")
         layout.addWidget(self.lbl_name)
 
+        # Xuất xứ
+        self.lbl_origin = QLabel("")
+        self.lbl_origin.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_origin.setStyleSheet("font-size: 18px; font-weight: bold; border: none;")
+        layout.addWidget(self.lbl_origin)
+
         # 4. Giá tiền
         self.lbl_price = QLabel("")
         self.lbl_price.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -59,6 +65,7 @@ class ResultPanel(QFrame):
     def update_product(self, data):
         """Hàm này được gọi từ Main Window khi tìm thấy sản phẩm"""
         self.lbl_name.setText(data['name'])
+        self.lbl_origin.setText(f"Xuất xứ: {data['origin']}")
         self.lbl_price.setText(f"Giá tham khảo: {data['price']}")
         self.lbl_desc.setText(data['description'])
 

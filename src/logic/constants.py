@@ -75,4 +75,5 @@ ORIGINS = {
     "X6": "Canada",
     "X7": "Anh",
     "X8": "Đức",
+    "X9": "Không chọn",
 }
