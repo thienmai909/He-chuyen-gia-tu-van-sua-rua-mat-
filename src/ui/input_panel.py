@@ -1,4 +1,3 @@
-# src/ui/input_panel.py
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QComboBox, 
                                QPushButton, QFrame)
 from PySide6.QtCore import Signal, Qt

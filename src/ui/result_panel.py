@@ -1,4 +1,3 @@
-# src/ui/result_panel.py
 import os
 from PySide6.QtWidgets import (QFrame, QVBoxLayout, QLabel, QScrollArea, QWidget)
 from PySide6.QtGui import QPixmap
@@ -18,7 +17,7 @@ class ResultPanel(QFrame):
 
         # 1. Tiêu đề khu vực
         self.lbl_header = QLabel("KẾT QUẢ TƯ VẤN")
-        self.lbl_header.setStyleSheet("font-size: 22px; font-weight: bold; color: #27ae60; border: none;")
+        self.lbl_header.setStyleSheet("font-size: 22px; font-weight: 1000; color: #27ae60; border: none;")
         self.lbl_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.lbl_header)
 

@@ -1,5 +1,3 @@
-# src/ui/styles.py
-
 # Bảng màu chủ đạo (Color Palette)
 PRIMARY_COLOR = "#2980b9"   # Xanh dương đậm
 HOVER_COLOR = "#3498db"     # Xanh dương nhạt

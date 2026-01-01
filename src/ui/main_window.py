@@ -1,4 +1,3 @@
-# src/ui/main_window.py
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
 from PySide6.QtGui import QIcon
 from src.ui.styles import STYLESHEET
