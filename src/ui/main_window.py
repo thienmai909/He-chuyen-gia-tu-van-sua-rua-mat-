@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QPushButton, QGridLayout
-from PySide6.QtGui import QIcon, QPixmap, Qt, QPicture
+from PySide6.QtGui import QIcon, QPixmap, Qt
 from PySide6.QtCore import QSize, QMargins
 from src.ui.styles import STYLESHEET
 from src.ui.input_panel import InputPanel
 from src.ui.result_panel import ResultPanel
 from src.logic.inference_engine import ExpertSystem
 
-from src.ui.utility import AutoResizeLabel
+from src.ui.utility import AutoResizeLabel, HoverImageButton
 
 WIDTH_MAIN_SCREEN = 1200
 HEIGHT_MAIN_SCREEN = 700
@@ -18,13 +18,10 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("assets\\icons\\logo.jpg"))
         self.resize(WIDTH_MAIN_SCREEN, HEIGHT_MAIN_SCREEN)
         
-        # Load style chung
         self.setStyleSheet(STYLESHEET)
 
-        # Khởi tạo Logic Engine
         self.engine = ExpertSystem()
-        self.click_start()
-        # self.setup_ui()
+        self.start_screen()
 
     def setup_ui(self):
         central_widget = QWidget()
@@ -33,21 +30,15 @@ class MainWindow(QMainWindow):
         self.start_widget = None 
         self.btn_start = None
 
-        # Layout chính: Xếp ngang (Horizontal)
         main_layout = QHBoxLayout(central_widget)
         main_layout.setContentsMargins(QMargins(10, 10, 10, 10)) # Căn lề ngoài
         main_layout.setSpacing(10) # Khoảng cách giữa 2 cột
 
-        # 1. Tạo cột trái (Input)
         self.input_panel = InputPanel()
-        # self.input_panel = WizardPanel()
-        # KẾT NỐI TÍN HIỆU: Khi input_panel bắn tín hiệu 'search_signal', gọi hàm handle_search
         self.input_panel.search_signal.connect(self.handle_search)
         
-        # 2. Tạo cột phải (Result)
         self.result_panel = ResultPanel()
 
-        # 3. Thêm vào layout
         main_layout.addWidget(self.input_panel)
         main_layout.addWidget(self.result_panel, stretch=1) # stretch=1 để cột phải giãn rộng hơn
 
@@ -59,13 +50,11 @@ class MainWindow(QMainWindow):
         result = self.engine.consult(input_data)
         
         if result:
-            # Nếu có kết quả -> Cập nhật panel phải
             self.result_panel.update_product(result)
         else:
-            # Nếu không -> Báo lỗi trên panel phải
             self.result_panel.show_not_found()
 
-    def click_start(self):
+    def start_screen(self):
         self.start_widget = QWidget()
         self.start_widget.resize(QSize(WIDTH_MAIN_SCREEN, HEIGHT_MAIN_SCREEN))
         self.setCentralWidget(self.start_widget)
@@ -73,46 +62,59 @@ class MainWindow(QMainWindow):
         layout = QGridLayout(self.start_widget)
         layout.setContentsMargins(QMargins(0, 0, 0, 0))
 
+        # Background Image Label
         self.image_label = AutoResizeLabel()
         self.image_label.set_image("assets/images/start.png")
         layout.addWidget(self.image_label, 0, 0)
+        
+        # --- BUTTON NO (CLOSE) ---
+        self.btn_no = HoverImageButton(normal_img_path="assets/images/btn-no.png", hover_img_path="assets/images/btn-no-hover.png", parent=self.start_widget)
+        self.btn_no.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_no.setStyleSheet(BUTTON_START_SHEET)
+        self.btn_no.show()
+        self.btn_no.clicked.connect(self.click_close)
 
-        self.btn_img = QPixmap("assets/images/btn-yes.png")
-        self.btn_start = QPushButton(parent=self.start_widget, icon=self.btn_img)
-        self.btn_start.setIconSize(self.btn_img.size())
-        self.btn_start.setFixedSize(self.btn_img.size())
+        # --- BUTTON YES (START) ---
+        btn_size_start = QPixmap("assets/images/btn-yes.png").size() * 2
+        self.btn_start = HoverImageButton(normal_img_path="assets/images/btn-yes.png", hover_img_path="assets/images/btn-yes-hover.png", custom_size=btn_size_start, parent=self.start_widget)
         self.btn_start.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_start.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;                     
-                background-color: #ff6b6b;
-            }
-            QPushButton:hover {
-                background-color: #ff5252;
-            }
-        """)
-        self.btn_start.clicked.connect(self.setup_ui)
+        self.btn_start.setStyleSheet(BUTTON_START_SHEET)
         self.btn_start.show()
+        self.btn_start.clicked.connect(self.setup_ui)
 
+        # Tính toán vị trí lần đầu
         self.recalc_button_position()
 
     def recalc_button_position(self):
-        # Kiểm tra xem nút đã được tạo và đang hiển thị chưa
-        if not getattr(self, 'start_widget', None) or not getattr(self, 'btn_start', None):
+        # Kiểm tra nếu các nút chưa được khởi tạo thì không làm gì cả
+        if not getattr(self, 'start_widget', None) or \
+           not getattr(self, 'btn_start', None) or \
+           not getattr(self, 'btn_no', None):
             return
-  
+
         try:
             screen_w = self.start_widget.width()
             screen_h = self.start_widget.height()
-            btn_w = self.btn_start.width()
-            btn_h = self.btn_start.height()
+            
+            w_yes = self.btn_start.width()
+            w_no = self.btn_no.width()
+            
+            # Khoảng cách giữa 2 nút (pixel)
+            spacing = 100 
 
-            # Tính toán vị trí
-            x = (screen_w - btn_w) / 2
-            y = (screen_h * 0.95) - (btn_h / 2) # Để 0.85 hoặc 0.9 tùy bạn
+            # --- TÍNH TOÁN VỊ TRÍ Y (Cao độ) ---
+            # Đặt nút ở vị trí 82% chiều cao màn hình (gần đáy)
+            pos_y = int(screen_h * 0.82) 
 
-            self.btn_start.move(int(x), int(y))
+            # --- TÍNH TOÁN VỊ TRÍ X (Ngang) ---
+            # Tổng chiều rộng của cả cụm = (Rộng Nút No) + (Khoảng cách) + (Rộng Nút Yes)
+            total_group_width = w_no + spacing + w_yes
+            
+            start_x = (screen_w - total_group_width) / 3
+
+            self.btn_no.move(int(start_x), pos_y)
+
+            self.btn_start.move(int(start_x + w_no + spacing), pos_y)
 
         except RuntimeError:
             pass
@@ -120,3 +122,22 @@ class MainWindow(QMainWindow):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.recalc_button_position()
+
+    def click_close(self):
+        self.close()
+
+BUTTON_START_SHEET = """
+    QPushButton {
+        border: none;
+        background: transparent;
+        /* Đặt radius thật lớn để nút luôn tròn dù kích thước nào */
+        border-radius: 25px; 
+    }
+    QPushButton:hover {
+        /* Hiệu ứng mờ đen khi hover */
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    QPushButton:pressed {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+"""

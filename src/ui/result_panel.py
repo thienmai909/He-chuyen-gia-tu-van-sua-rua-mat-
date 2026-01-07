@@ -1,51 +1,66 @@
 import os
-from PySide6.QtWidgets import (QFrame, QVBoxLayout, QLabel, QScrollArea, QWidget)
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QFrame, QVBoxLayout, QLabel, QScrollArea, QPushButton)
+from PySide6.QtGui import QPixmap, QDesktopServices
+from PySide6.QtCore import Qt, QUrl
 from src.ui.styles import PANEL_STYLE
 
 class ResultPanel(QFrame):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet(PANEL_STYLE)
+        self.current_link = ""
+        self.setObjectName("ResultPanelFrame")
+        self.setStyleSheet(PANEL_STYLE + """
+            #ResultPanelFrame {
+                /* Cách 1: Co giãn ảnh để lấp đầy khung (Khuyên dùng) */
+                border-image: url(assets/images/bg-result.png) 0 0 0 0 stretch stretch;
+                
+                /* Cách 2: Nếu muốn ảnh giữ nguyên size và lặp lại (Pattern) thì dùng dòng dưới: */
+                /* background-image: url(assets/images/pattern.png); */
+            }
+            
+            /* Làm nền các Label trong suốt để thấy ảnh nền phía sau */
+            QLabel {
+                background-color: transparent;
+            }
+        """)
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        layout.setContentsMargins(30, 30, 30, 30)
+        layout_result = QVBoxLayout(self)
+        layout_result.setAlignment(Qt.AlignmentFlag.AlignTop)
+        layout_result.setContentsMargins(30, 30, 30, 20)
 
         # 1. Tiêu đề khu vực
         self.lbl_header = QLabel("KẾT QUẢ TƯ VẤN")
         self.lbl_header.setStyleSheet("font-size: 22px; font-weight: 1000; color: #27ae60; border: none;")
         self.lbl_header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.lbl_header)
+        layout_result.addWidget(self.lbl_header)
 
         # 2. Ảnh sản phẩm
         self.lbl_image = QLabel()
         self.lbl_image.setFixedSize(300, 300)
         self.lbl_image.setStyleSheet("background-color: #f9f9f9; border-radius: 8px; border: 1px dashed #ccc;")
         self.lbl_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.lbl_image, 0, Qt.AlignmentFlag.AlignCenter)
+        layout_result.addWidget(self.lbl_image, 0, Qt.AlignmentFlag.AlignCenter)
 
         # 3. Tên sản phẩm
         self.lbl_name = QLabel("Vui lòng chọn tiêu chí bên trái...")
         self.lbl_name.setWordWrap(True)
         self.lbl_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_name.setStyleSheet("font-size: 20px; font-weight: bold; margin-top: 15px; border: none;")
-        layout.addWidget(self.lbl_name)
+        layout_result.addWidget(self.lbl_name)
 
         # Xuất xứ
         self.lbl_origin = QLabel("")
         self.lbl_origin.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_origin.setStyleSheet("font-size: 18px; font-weight: bold; border: none;")
-        layout.addWidget(self.lbl_origin)
+        layout_result.addWidget(self.lbl_origin)
 
         # 4. Giá tiền
         self.lbl_price = QLabel("")
         self.lbl_price.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_price.setStyleSheet("font-size: 18px; color: #e74c3c; font-weight: bold; border: none;")
-        layout.addWidget(self.lbl_price)
+        layout_result.addWidget(self.lbl_price)
 
         # 5. Mô tả (Có thanh cuộn nếu dài)
         scroll = QScrollArea()
@@ -59,7 +74,23 @@ class ResultPanel(QFrame):
         self.lbl_desc.setAlignment(Qt.AlignmentFlag.AlignJustify)
         
         scroll.setWidget(self.lbl_desc)
-        layout.addWidget(scroll)
+        layout_result.addWidget(scroll, 1)
+
+        self.btn_delta = QPushButton("MUA NGAY 🛒")
+        self.btn_delta.setStyleSheet("""
+            QPushButton {
+                background-color: #27ae60; 
+                color: white;
+                padding: 10px 10px 10px 15px;
+                border-radius: 5px;
+                font-weight: bold;
+                font-size: 15px;
+            }
+            QPushButton:hover { background-color: #2980b9; }
+        """)
+        self.btn_delta.clicked.connect(self.click_product_link)
+        self.btn_delta.hide()
+        layout_result.addWidget(self.btn_delta, alignment=Qt.AlignmentFlag.AlignRight)
 
     def update_product(self, data):
         """Hàm này được gọi từ Main Window khi tìm thấy sản phẩm"""
@@ -67,6 +98,8 @@ class ResultPanel(QFrame):
         self.lbl_origin.setText(f"Xuất xứ: {data['origin']}")
         self.lbl_price.setText(f"Giá tham khảo: {data['price']}")
         self.lbl_desc.setText(data['description'])
+
+        self.current_link = data.get('product_link', '')
 
         # Load ảnh
         img_path = data['image_path']
@@ -79,6 +112,8 @@ class ResultPanel(QFrame):
             ))
         else:
             self.lbl_image.setText("📷 Không có ảnh")
+        
+        self.btn_delta.show()
 
     def show_not_found(self):
         """Hàm hiển thị khi không tìm thấy"""
@@ -87,3 +122,10 @@ class ResultPanel(QFrame):
         self.lbl_desc.setText("Rất tiếc, không có sản phẩm nào khớp hoàn toàn với bộ tiêu chí bạn chọn.\n\nHệ chuyên gia yêu cầu tính chính xác cao. Hãy thử thay đổi một vài tiêu chí (ví dụ: đổi Thương hiệu hoặc Khoảng giá).")
         self.lbl_image.clear()
         self.lbl_image.setText("Not Found")
+        self.lbl_origin.setText("")
+
+    def click_product_link(self):
+        if self.current_link:
+            print(f"Opening: {self.current_link}")
+            # Dùng QDesktopServices để mở link trên trình duyệt mặc định của máy
+            QDesktopServices.openUrl(QUrl(self.current_link))

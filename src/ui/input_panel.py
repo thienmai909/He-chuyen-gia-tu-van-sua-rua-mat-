@@ -31,12 +31,12 @@ class InputPanel(QFrame):
 
         # Danh sách các trường nhập liệu
         fields = [
-            ("Loại Da", SKIN_TYPES, "L"),
-            ("Công Dụng", BENEFITS, "C"),
-            ("Đặc Tính", FEATURES, "D"),
-            ("Khoảng Giá", PRICES, "G"),
-            ("Thương Hiệu", BRANDS, "H"),
-            ("Xuất Xứ", ORIGINS, "X"),
+            ("🧴Loại Da", SKIN_TYPES, "L"),
+            ("✨Công Dụng", BENEFITS, "C"),
+            ("🧪Đặc Tính", FEATURES, "D"),
+            ("💰Khoảng Giá", PRICES, "G"),
+            ("🏷️Thương Hiệu", BRANDS, "H"),
+            ("🌍Xuất Xứ", ORIGINS, "X"),
         ]
 
         for label, data, key in fields:

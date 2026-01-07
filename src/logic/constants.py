@@ -67,6 +67,7 @@ BRANDS = {
 
 # 6. XUẤT XỨ (X)
 ORIGINS = {
+    "X9": "Không chọn",
     "X1": "Pháp",
     "X2": "Nhật Bản",
     "X3": "Mỹ",
@@ -75,5 +76,4 @@ ORIGINS = {
     "X6": "Canada",
     "X7": "Anh",
     "X8": "Đức",
-    "X9": "Không chọn",
 }

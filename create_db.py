@@ -9,7 +9,7 @@ class CosmeticManagerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Quản lý Sản phẩm Mỹ phẩm")
-        self.root.geometry("1200x700")
+        self.root.geometry("1200x750")
         
         # Khởi tạo database nếu chưa có
         self.init_database()
@@ -27,6 +27,8 @@ class CosmeticManagerApp:
         
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
+        
+        # Tạo bảng với cấu trúc mới
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
             id TEXT PRIMARY KEY,
@@ -34,9 +36,17 @@ class CosmeticManagerApp:
             origin TEXT,
             price TEXT,
             description TEXT,
-            image_path TEXT
+            image_path TEXT,
+            product_link TEXT
         )
         """)
+        
+        # Kiểm tra và thêm cột product_link nếu chưa có (cho database cũ)
+        cursor.execute("PRAGMA table_info(products)")
+        columns = [column[1] for column in cursor.fetchall()]
+        if 'product_link' not in columns:
+            cursor.execute("ALTER TABLE products ADD COLUMN product_link TEXT")
+        
         conn.commit()
         conn.close()
     
@@ -76,7 +86,7 @@ class CosmeticManagerApp:
         desc_frame = tk.Frame(left_frame)
         desc_frame.grid(row=4, column=1, pady=5, padx=5, sticky="ew")
         
-        self.desc_text = tk.Text(desc_frame, width=40, height=10, wrap=tk.WORD)
+        self.desc_text = tk.Text(desc_frame, width=40, height=8, wrap=tk.WORD)
         desc_scrollbar = tk.Scrollbar(desc_frame, command=self.desc_text.yview)
         self.desc_text.config(yscrollcommand=desc_scrollbar.set)
         
@@ -93,9 +103,14 @@ class CosmeticManagerApp:
         
         tk.Button(image_frame, text="Chọn...", command=self.browse_image).pack(side=tk.LEFT, padx=(5, 0))
         
+        # Link sản phẩm (TRƯỜNG MỚI)
+        tk.Label(left_frame, text="Link sản phẩm:").grid(row=6, column=0, sticky="w", pady=5)
+        self.link_entry = tk.Entry(left_frame, width=40)
+        self.link_entry.grid(row=6, column=1, pady=5, padx=5)
+        
         # Các nút chức năng
         button_frame = tk.Frame(left_frame)
-        button_frame.grid(row=6, column=0, columnspan=2, pady=20)
+        button_frame.grid(row=7, column=0, columnspan=2, pady=20)
         
         tk.Button(button_frame, text="Thêm mới", bg="#4CAF50", fg="white", 
                  width=12, command=self.add_product).pack(side=tk.LEFT, padx=5)
@@ -231,6 +246,9 @@ class CosmeticManagerApp:
             self.price_entry.insert(0, product[3])
             self.desc_text.insert("1.0", product[4])
             self.image_entry.insert(0, product[5])
+            # Thêm link sản phẩm
+            if len(product) > 6 and product[6]:
+                self.link_entry.insert(0, product[6])
     
     def clear_form(self):
         """Xóa toàn bộ form"""
@@ -240,6 +258,7 @@ class CosmeticManagerApp:
         self.price_entry.delete(0, tk.END)
         self.desc_text.delete("1.0", tk.END)
         self.image_entry.delete(0, tk.END)
+        self.link_entry.delete(0, tk.END)
     
     def add_product(self):
         """Thêm sản phẩm mới"""
@@ -250,6 +269,7 @@ class CosmeticManagerApp:
         price = self.price_entry.get().strip()
         description = self.desc_text.get("1.0", tk.END).strip()
         image_path = self.image_entry.get().strip()
+        product_link = self.link_entry.get().strip()
         
         # Validate
         if not product_id or not name:
@@ -268,9 +288,9 @@ class CosmeticManagerApp:
         # Insert
         try:
             cursor.execute("""
-            INSERT INTO products (id, name, origin, price, description, image_path)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """, (product_id, name, origin, price, description, image_path))
+            INSERT INTO products (id, name, origin, price, description, image_path, product_link)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (product_id, name, origin, price, description, image_path, product_link))
             conn.commit()
             conn.close()
             
@@ -294,6 +314,7 @@ class CosmeticManagerApp:
         price = self.price_entry.get().strip()
         description = self.desc_text.get("1.0", tk.END).strip()
         image_path = self.image_entry.get().strip()
+        product_link = self.link_entry.get().strip()
         
         if not name:
             messagebox.showerror("Lỗi", "Tên sản phẩm không được để trống!")
@@ -305,9 +326,9 @@ class CosmeticManagerApp:
             cursor = conn.cursor()
             cursor.execute("""
             UPDATE products 
-            SET name = ?, origin = ?, price = ?, description = ?, image_path = ?
+            SET name = ?, origin = ?, price = ?, description = ?, image_path = ?, product_link = ?
             WHERE id = ?
-            """, (name, origin, price, description, image_path, product_id))
+            """, (name, origin, price, description, image_path, product_link, product_id))
             conn.commit()
             conn.close()
             

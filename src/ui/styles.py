@@ -1,6 +1,6 @@
 # Bảng màu chủ đạo (Color Palette)
-PRIMARY_COLOR = "#2980b9"   # Xanh dương đậm
-HOVER_COLOR = "#3498db"     # Xanh dương nhạt
+PRIMARY_COLOR = "#fea7b1"   # Xanh dương đậm
+HOVER_COLOR = "#ffd1d6"     # Xanh dương nhạt
 BG_COLOR = "#ffe3f1"        # Xám nhạt nền
 TEXT_COLOR = "#2c3e50"      # Màu chữ đen xám
 WHITE = "#ffffff"
@@ -30,7 +30,7 @@ STYLESHEET = f"""
 BUTTON_STYLE = f"""
     QPushButton {{
         background-color: {PRIMARY_COLOR};
-        color: white;
+        color: black;
         font-weight: bold;
         font-size: 15px;
         border-radius: 6px;

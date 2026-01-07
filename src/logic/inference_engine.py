@@ -13,7 +13,7 @@ class ExpertSystem:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
-        cursor.execute("SELECT name, origin, price, description, image_path FROM products WHERE id = ?", (product_id,))
+        cursor.execute("SELECT name, origin, price, description, image_path, product_link FROM products WHERE id = ?", (product_id,))
         row = cursor.fetchone()
         
         conn.close()
@@ -24,7 +24,8 @@ class ExpertSystem:
                 "origin": row[1],
                 "price": row[2],
                 "description": row[3],
-                "image_path": row[4]
+                "image_path": row[4],
+                "product_link": row[5],
             }
         return None
 
