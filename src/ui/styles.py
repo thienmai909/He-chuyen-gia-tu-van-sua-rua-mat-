@@ -1,7 +1,7 @@
 # Bảng màu chủ đạo (Color Palette)
 PRIMARY_COLOR = "#2980b9"   # Xanh dương đậm
 HOVER_COLOR = "#3498db"     # Xanh dương nhạt
-BG_COLOR = "#ecf0f1"        # Xám nhạt nền
+BG_COLOR = "#ffe3f1"        # Xám nhạt nền
 TEXT_COLOR = "#2c3e50"      # Màu chữ đen xám
 WHITE = "#ffffff"
 
