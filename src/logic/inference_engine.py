@@ -1,11 +1,11 @@
 import sqlite3
-import os
 from src.logic.knowledge_base import RULE_MAP
+from src.utils.resource_manager import get_db_path
 
 class ExpertSystem:
     def __init__(self):
-        # Đường dẫn đến database
-        self.db_path = os.path.join("data", "mypham.db")
+        # Đường dẫn đến database sử dụng resource manager
+        self.db_path = get_db_path()
         self.rules = RULE_MAP
 
     def get_product_details(self, product_id):

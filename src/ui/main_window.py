@@ -5,6 +5,7 @@ from src.ui.styles import STYLESHEET
 from src.ui.input_panel import InputPanel
 from src.ui.result_panel import ResultPanel
 from src.logic.inference_engine import ExpertSystem
+from src.utils.resource_manager import get_asset_path
 
 from src.ui.utility import AutoResizeLabel, HoverImageButton
 
@@ -15,7 +16,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Hệ Chuyên Gia Tư Vấn Sữa Rửa Mặt")
-        self.setWindowIcon(QIcon("assets\\icons\\logo.jpg"))
+        self.setWindowIcon(QIcon(get_asset_path("icons", "logo.jpg")))
         self.resize(WIDTH_MAIN_SCREEN, HEIGHT_MAIN_SCREEN)
         
         self.setStyleSheet(STYLESHEET)
@@ -64,19 +65,29 @@ class MainWindow(QMainWindow):
 
         # Background Image Label
         self.image_label = AutoResizeLabel()
-        self.image_label.set_image("assets/images/start.png")
+        self.image_label.set_image(get_asset_path("images", "start.png"))
         layout.addWidget(self.image_label, 0, 0)
         
         # --- BUTTON NO (CLOSE) ---
-        self.btn_no = HoverImageButton(normal_img_path="assets/images/btn-no.png", hover_img_path="assets/images/btn-no-hover.png", parent=self.start_widget)
+        self.btn_no = HoverImageButton(
+            normal_img_path=get_asset_path("images", "btn-no.png"),
+            hover_img_path=get_asset_path("images", "btn-no-hover.png"),
+            parent=self.start_widget
+        )
         self.btn_no.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_no.setStyleSheet(BUTTON_START_SHEET)
         self.btn_no.show()
         self.btn_no.clicked.connect(self.click_close)
 
         # --- BUTTON YES (START) ---
-        btn_size_start = QPixmap("assets/images/btn-yes.png").size() * 2
-        self.btn_start = HoverImageButton(normal_img_path="assets/images/btn-yes.png", hover_img_path="assets/images/btn-yes-hover.png", custom_size=btn_size_start, parent=self.start_widget)
+        btn_yes_path = get_asset_path("images", "btn-yes.png")
+        btn_size_start = QPixmap(btn_yes_path).size() * 2
+        self.btn_start = HoverImageButton(
+            normal_img_path=btn_yes_path,
+            hover_img_path=get_asset_path("images", "btn-yes-hover.png"),
+            custom_size=btn_size_start,
+            parent=self.start_widget
+        )
         self.btn_start.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_start.setStyleSheet(BUTTON_START_SHEET)
         self.btn_start.show()

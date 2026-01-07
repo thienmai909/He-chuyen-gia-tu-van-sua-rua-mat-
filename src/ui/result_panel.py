@@ -3,25 +3,30 @@ from PySide6.QtWidgets import (QFrame, QVBoxLayout, QLabel, QScrollArea, QPushBu
 from PySide6.QtGui import QPixmap, QDesktopServices
 from PySide6.QtCore import Qt, QUrl
 from src.ui.styles import PANEL_STYLE
+from src.utils.resource_manager import get_asset_path, get_resource_path
 
 class ResultPanel(QFrame):
     def __init__(self):
         super().__init__()
         self.current_link = ""
         self.setObjectName("ResultPanelFrame")
-        self.setStyleSheet(PANEL_STYLE + """
-            #ResultPanelFrame {
-                /* Cách 1: Co giãn ảnh để lấp đầy khung (Khuyên dùng) */
-                border-image: url(assets/images/bg-result.png) 0 0 0 0 stretch stretch;
-                
-                /* Cách 2: Nếu muốn ảnh giữ nguyên size và lặp lại (Pattern) thì dùng dòng dưới: */
-                /* background-image: url(assets/images/pattern.png); */
-            }
+        
+        # Load background image using resource manager
+        bg_path = get_asset_path("images", "bg-result.png")
+        
+        # Chuyển đổi backslash thành forward slash cho QSS
+        # QSS yêu cầu forward slash hoặc double backslash
+        bg_path_qss = bg_path.replace("\\", "/")
+        
+        # Style with background image và transparent labels
+        self.setStyleSheet(PANEL_STYLE + f"""
+            #ResultPanelFrame {{
+                border-image: url({bg_path_qss}) 0 0 0 0 stretch stretch;
+            }}
             
-            /* Làm nền các Label trong suốt để thấy ảnh nền phía sau */
-            QLabel {
+            QLabel {{
                 background-color: transparent;
-            }
+            }}
         """)
         self.setup_ui()
 
@@ -101,8 +106,13 @@ class ResultPanel(QFrame):
 
         self.current_link = data.get('product_link', '')
 
-        # Load ảnh
+        # Load ảnh - chuẩn hóa đường dẫn từ database
         img_path = data['image_path']
+        
+        # Nếu đường dẫn là tương đối, chuyển thành tuyệt đối
+        if not os.path.isabs(img_path):
+            img_path = get_resource_path(img_path)
+        
         if os.path.exists(img_path):
             pixmap = QPixmap(img_path)
             self.lbl_image.setPixmap(pixmap.scaled(

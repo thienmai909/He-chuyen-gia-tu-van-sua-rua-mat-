@@ -16,7 +16,15 @@ class AutoResizeLabel(QLabel):
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
 
     def set_image(self, image_path):
+        if not os.path.exists(image_path):
+            print(f"Cảnh báo: Không tìm thấy ảnh tại: {image_path}")
+            self._pixmap = None
+            return
+        
         self._pixmap = QPixmap(image_path)
+        if self._pixmap.isNull():
+            print(f"Cảnh báo: Không thể load ảnh từ: {image_path}")
+            self._pixmap = None
         self.update_display()
 
     def update_display(self):
@@ -40,9 +48,21 @@ class HoverImageButton(QPushButton):
     def __init__(self, normal_img_path: str, hover_img_path: str, custom_size=None | QSize, parent=None):
         super().__init__(parent)
         
+        # Kiểm tra file tồn tại
+        if not os.path.exists(normal_img_path):
+            print(f"Cảnh báo: Không tìm thấy ảnh normal tại: {normal_img_path}")
+        if not os.path.exists(hover_img_path):
+            print(f"Cảnh báo: Không tìm thấy ảnh hover tại: {hover_img_path}")
+        
         # Load trước 2 ảnh vào bộ nhớ
         self.pixmap_normal = QPixmap(normal_img_path)
         self.pixmap_hover = QPixmap(hover_img_path)
+        
+        # Kiểm tra pixmap hợp lệ
+        if self.pixmap_normal.isNull():
+            print(f"Cảnh báo: Không thể load ảnh normal từ: {normal_img_path}")
+        if self.pixmap_hover.isNull():
+            print(f"Cảnh báo: Không thể load ảnh hover từ: {hover_img_path}")
 
         # Mặc định hiển thị ảnh Normal
         self.setIcon(QIcon(self.pixmap_normal))

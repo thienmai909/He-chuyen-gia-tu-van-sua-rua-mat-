@@ -1,9 +1,14 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import sqlite3
+import sys
 import os
 
-DB_PATH = os.path.join("data", "mypham.db")
+# Add parent directory to path to import resource_manager
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.utils.resource_manager import get_db_path
+
+DB_PATH = get_db_path()
 
 class CosmeticManagerApp:
     def __init__(self, root):
@@ -21,10 +26,6 @@ class CosmeticManagerApp:
         self.load_data()
         
     def init_database(self):
-        """Khởi tạo database nếu chưa tồn tại"""
-        if not os.path.exists("data"):
-            os.makedirs("data")
-        
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         
