@@ -64,8 +64,8 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(QMargins(0, 0, 0, 0))
 
         # Background Image Label
-        self.image_label = AutoResizeLabel()
-        self.image_label.set_image(get_asset_path("images", "start.png"))
+        self.image_label = AutoResizeLabel(parent=self.start_widget)
+        self.image_label.set_image(get_asset_path("images", "start.jpg"))
         layout.addWidget(self.image_label, 0, 0)
         
         # --- BUTTON NO (CLOSE) ---
@@ -93,62 +93,126 @@ class MainWindow(QMainWindow):
         self.btn_start.show()
         self.btn_start.clicked.connect(self.setup_ui)
 
+        # --- BUTTON HOTLINE (lienhe) ---
+        btn_hotline_path = get_asset_path("images", "btn-lienhe.png")
+        btn_size_hotline = QPixmap(btn_hotline_path).size()
+        self.btn_hotline = HoverImageButton(
+            normal_img_path=btn_hotline_path,
+            hover_img_path=get_asset_path("images", "btn-lienhe-hover.png"),
+            custom_size=btn_size_hotline,
+            parent=self.start_widget
+        )
+        self.btn_hotline.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_hotline.setStyleSheet(BUTTON_START_SHEET)
+        self.btn_hotline.show()
+        self.btn_hotline.clicked.connect(self.hotline)
+
         # Tính toán vị trí lần đầu
         self.recalc_button_position()
 
     def recalc_button_position(self):
-        # Kiểm tra nếu các nút chưa được khởi tạo thì không làm gì cả
+        # 1. Kiểm tra an toàn
         if not getattr(self, 'start_widget', None) or \
            not getattr(self, 'btn_start', None) or \
-           not getattr(self, 'btn_no', None):
+           not getattr(self, 'btn_no', None) or \
+           not getattr(self, 'btn_hotline', None):
             return
 
         try:
+            # Lấy kích thước màn hình
             screen_w = self.start_widget.width()
             screen_h = self.start_widget.height()
             
+            # Lấy kích thước các nút
             w_yes = self.btn_start.width()
+            h_yes = self.btn_start.height() # Cần chiều cao để căn giữa dọc
+            
             w_no = self.btn_no.width()
+            h_no = self.btn_no.height()
             
-            # Khoảng cách giữa 2 nút (pixel)
-            spacing = 100 
+            w_hot = self.btn_hotline.width()
+            h_hot = self.btn_hotline.height()
 
-            # --- TÍNH TOÁN VỊ TRÍ Y (Cao độ) ---
-            # Đặt nút ở vị trí 82% chiều cao màn hình (gần đáy)
-            pos_y = int(screen_h * 0.82) 
-
-            # --- TÍNH TOÁN VỊ TRÍ X (Ngang) ---
-            # Tổng chiều rộng của cả cụm = (Rộng Nút No) + (Khoảng cách) + (Rộng Nút Yes)
-            total_group_width = w_no + spacing + w_yes
+            spacing_center = 100 # Khoảng cách giữa nút No và Start
             
+            # Tính tổng chiều rộng cụm giữa
+            total_group_width = w_no + spacing_center + w_yes
+            
+            # Tính điểm bắt đầu X để căn giữa màn hình
             start_x = (screen_w - total_group_width) / 3
 
-            self.btn_no.move(int(start_x), pos_y)
+            # Tính vị trí Y (Cao độ) - Đặt ở 82% màn hình
+            base_y = int(screen_h * 0.82)
+            
+            # Tính đường tâm của nút to nhất (Nút Start)
+            center_line_y = base_y + (h_yes / 2)
 
-            self.btn_start.move(int(start_x + w_no + spacing), pos_y)
+            y_no = int(center_line_y - (h_no / 2))
+            self.btn_no.move(int(start_x), y_no)
 
+            self.btn_start.move(int(start_x + w_no + spacing_center), base_y)
+
+            margin_right = 30  # Cách lề phải 30px
+            margin_top = 30    # Cách lề trên 30px
+
+            # Công thức tính X: Tổng chiều rộng màn hình - Chiều rộng nút - Lề phải
+            x_hot = screen_w - w_hot - margin_right
+            
+            # Công thức tính Y: Lề trên
+            y_hot = margin_top
+
+            self.btn_hotline.move(int(x_hot), int(y_hot))
         except RuntimeError:
             pass
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self.recalc_button_position()
+        self.recalc_button_back_position()
 
     def click_close(self):
         self.close()
+    
+    def hotline(self):
+        self.hotline_widget = QWidget()
+        self.hotline_widget.resize(QSize(WIDTH_MAIN_SCREEN, HEIGHT_MAIN_SCREEN))
+        self.setCentralWidget(self.hotline_widget)
+
+        layout = QGridLayout(self.hotline_widget)
+        layout.setContentsMargins(QMargins(0, 0, 0, 0))
+
+        self.image_hotline = AutoResizeLabel()
+        self.image_hotline.set_image(get_asset_path("images", "bg-hotline.png"))
+        layout.addWidget(self.image_hotline, 0, 0)
+
+        # Button Back
+        self.btn_back = HoverImageButton(
+            normal_img_path=get_asset_path("images", "btn-back.png"),
+            hover_img_path=get_asset_path("images", "btn-back-hover.png"),
+            parent=self.hotline_widget
+        )
+        self.btn_back.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_back.setStyleSheet(BUTTON_START_SHEET)
+        self.btn_back.show()
+        self.btn_back.clicked.connect(self.start_screen)
+
+        self.recalc_button_back_position()
+    
+    def recalc_button_back_position(self):
+        if not getattr(self, 'btn_back', None):
+            return
+
+        screen_w = self.start_widget.width()
+        screen_h = self.start_widget.height()
+
+        self.btn_back.move((screen_w * 0.4), (screen_h * 0.85))
+
 
 BUTTON_START_SHEET = """
     QPushButton {
         border: none;
         background: transparent;
         /* Đặt radius thật lớn để nút luôn tròn dù kích thước nào */
-        border-radius: 25px; 
-    }
-    QPushButton:hover {
-        /* Hiệu ứng mờ đen khi hover */
-        background-color: rgba(0, 0, 0, 0.1);
-    }
-    QPushButton:pressed {
-        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 50px; 
     }
 """
