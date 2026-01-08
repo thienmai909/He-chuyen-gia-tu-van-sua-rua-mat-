@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout, QPushButton, QGridLayout
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QGridLayout
 from PySide6.QtGui import QIcon, QPixmap, Qt
 from PySide6.QtCore import QSize, QMargins
 from src.ui.styles import STYLESHEET
